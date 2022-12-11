@@ -6,7 +6,7 @@ using NZWalksAPI.Repositories;
 namespace NZWalksAPI.Controllers
 {
     [ApiController]
-    [Route("WalksDifficulty")]
+    [Route("[controller]")]
     public class WalksDifficultyController : Controller
     {
         private readonly IWalksDifficultyRepository _walksDifficultyRepository;
@@ -33,7 +33,7 @@ namespace NZWalksAPI.Controllers
 
         [HttpGet]
         [Route("{id:guid}")]
-        [ActionName("GetWalkDifficultyAsync")]
+        [ActionName("GetWalkDifficultyByIdAsync")]
         public async Task<IActionResult> GetWalkDifficultyByIdAsync(Guid id)
         {
             var result = await _walksDifficultyRepository.GetAsync(id);
@@ -50,11 +50,16 @@ namespace NZWalksAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddWalksDifficultyAsync(WalkDifficulty addWalkDifficulty)
+        public async Task<IActionResult> AddWalksDifficultyAsync(Models.DTO.AddWalkDifficultyRequest addWalkDifficulty)
         {
-            var walksdiff = await _walksDifficultyRepository.AddAsync(addWalkDifficulty);
+            var walkDiffDomain = new Models.Domain.WalkDifficulty { Code = addWalkDifficulty.Code };
 
-            return Ok(walksdiff);
+            walkDiffDomain = await _walksDifficultyRepository.AddAsync(walkDiffDomain);
+
+            var walkDifficultiesDTO = Mapper.Map<Models.DTO.WalkDifficulty>(walkDiffDomain);
+
+            return CreatedAtAction(nameof(GetWalkDifficultyByIdAsync),
+                new { id = walkDifficultiesDTO.Id },walkDifficultiesDTO);
 
 
         }
@@ -79,27 +84,25 @@ namespace NZWalksAPI.Controllers
 
         [HttpPut]
         [Route("{id:guid}")]
-        public async Task<IActionResult> UpdateWalkDifficultyAsync([FromRoute] Guid id, [FromBody] WalkDifficulty walk)
+        public async Task<IActionResult> UpdateWalkDifficultyAsync([FromRoute] Guid id, [FromBody] Models.DTO.UpdateWalkDifficultyRequest updateWalk)
         {
 
             //Convert DTO to domain Model
-
+            var walkDiffDomain = new Models.Domain.WalkDifficulty { Code = updateWalk.Code };
 
             //Update region using repository
-           var walkDifficulty = await _walksDifficultyRepository.UpdateAsync(id, walk);
+            walkDiffDomain = await _walksDifficultyRepository.UpdateAsync(id, walkDiffDomain);
 
             //if null then Notfound
-            if (walk == null) { return NotFound(); }
+            if (walkDiffDomain == null) { return NotFound(); }
 
 
             //Convert Domain back to DTO
-            var walksDiffDTO = new Models.DTO.WalkDifficulty
-            {
-                Code = walkDifficulty.Code
-            };
+            var response = Mapper.Map<Models.DTO.WalkDifficulty>(walkDiffDomain);
+
 
             //Return ok response
-            return Ok(walksDiffDTO);
+            return Ok(response);
         }
 
 
