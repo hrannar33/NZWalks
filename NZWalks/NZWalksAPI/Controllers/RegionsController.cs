@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NZWalksAPI.Data;
 using NZWalksAPI.Models.Domain;
@@ -23,6 +24,8 @@ namespace NZWalksAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "reader")]
+
         public async Task<IActionResult> GetAllRegionsAsync()
         {
 
@@ -58,6 +61,8 @@ namespace NZWalksAPI.Controllers
         [HttpGet]
         [Route("{id:guid}")]
         [ActionName("GetRegionAsync")]
+        [Authorize(Roles = "reader")]
+
         public async Task<IActionResult> GetRegionAsync(Guid id)
         {
 
@@ -74,10 +79,12 @@ namespace NZWalksAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "writer")]
+
         public async Task<IActionResult> AddRegionAsync(Models.DTO.AddRegionRequest addRegionRequest)
         {
             // validate request
-           if(! ValidateAddRegionAsync(addRegionRequest)) return BadRequest(ModelState);
+           //if(! ValidateAddRegionAsync(addRegionRequest)) return BadRequest(ModelState);
 
             //Request(DTO) to Domain model
             var region = new Models.Domain.Region()
@@ -110,6 +117,8 @@ namespace NZWalksAPI.Controllers
 
         [HttpDelete]
         [Route("{id:guid}")]
+        [Authorize(Roles = "writer")]
+
         public async Task<IActionResult> DeleteRegionAsync(Guid id)
         {
             //get region from db
@@ -144,10 +153,12 @@ namespace NZWalksAPI.Controllers
 
         [HttpPut]
         [Route("{id:guid}")]
+        [Authorize(Roles = "writer")]
+
         public async Task<IActionResult> UpdateRegionAsync([FromRoute] Guid id ,[FromBody] Models.DTO.UpdateRegionRequest updateRegionRequest)
         {
             // Validate incoming request
-            if (!ValidateUpdateRegionAsync(updateRegionRequest)) return BadRequest(ModelState);
+           //if (!ValidateUpdateRegionAsync(updateRegionRequest)) return BadRequest(ModelState);
 
             //Convert DTO to domain Model
             var region = new Models.Domain.Region()

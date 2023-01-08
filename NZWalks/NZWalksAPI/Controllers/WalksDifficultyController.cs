@@ -1,13 +1,17 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NZWalksAPI.Models.Domain;
 using NZWalksAPI.Models.DTO;
 using NZWalksAPI.Repositories;
+using System.Data;
 
 namespace NZWalksAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(Roles = "reader")]
+
     public class WalksDifficultyController : Controller
     {
         private readonly IWalksDifficultyRepository _walksDifficultyRepository;
@@ -35,6 +39,8 @@ namespace NZWalksAPI.Controllers
         [HttpGet]
         [Route("{id:guid}")]
         [ActionName("GetWalkDifficultyByIdAsync")]
+        [Authorize(Roles = "reader")]
+
         public async Task<IActionResult> GetWalkDifficultyByIdAsync(Guid id)
         {
             var result = await _walksDifficultyRepository.GetAsync(id);
@@ -51,10 +57,12 @@ namespace NZWalksAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "writer")]
+
         public async Task<IActionResult> AddWalksDifficultyAsync(Models.DTO.AddWalkDifficultyRequest addWalkDifficulty)
         {
             //validate request
-            if (!ValidateAddWalkDifficultykAsync(addWalkDifficulty)) return BadRequest(ModelState);
+            //if (!ValidateAddWalkDifficultykAsync(addWalkDifficulty)) return BadRequest(ModelState);
 
             var walkDiffDomain = new Models.Domain.WalkDifficulty { Code = addWalkDifficulty.Code };
 
@@ -70,6 +78,8 @@ namespace NZWalksAPI.Controllers
 
         [HttpDelete]
         [Route("{id:guid}")]
+        [Authorize(Roles = "writer")]
+
         public async Task<IActionResult> DeleteWalksDifficultyAsync(Guid id)
         {
             var walkDiff = await _walksDifficultyRepository.DeleteAsync(id);
@@ -88,11 +98,13 @@ namespace NZWalksAPI.Controllers
 
         [HttpPut]
         [Route("{id:guid}")]
+        [Authorize(Roles = "writer")]
+
         public async Task<IActionResult> UpdateWalkDifficultyAsync([FromRoute] Guid id, [FromBody] Models.DTO.UpdateWalkDifficultyRequest updateWalk)
         {
 
             //validate request
-            if (!ValidateupdateWalkDifficultyAsync(updateWalk)) return BadRequest(ModelState);
+            //if (!ValidateupdateWalkDifficultyAsync(updateWalk)) return BadRequest(ModelState);
 
 
             //Convert DTO to domain Model
